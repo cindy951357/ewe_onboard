@@ -1,4 +1,4 @@
-export const DisplayToken = ({ token0Res = "token0Res", token1Res = "token1Res" }) => {
+export const DisplayToken = ({ token0Res, token1Res }) => {
     return (
         <div id="display_token">
             <div className="token0 rounded-xl w-full h-[50px] bg-white mb-3 px-2
