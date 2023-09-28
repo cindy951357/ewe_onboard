@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { arbitrumStrategies } from "../data/ArbitrumOneStrategy";
 import DisplayToken from "../components/DisplayToken";
 import FetchButton from "../components/FetchButton";
@@ -5,31 +6,20 @@ import erc20abi from "../data/ERC20abi.json";
 
 const ethers = require("ethers")
 
-// const daiAddress = "dai.tokens.ethers.eth";
-// const daiAbi = [
-//     "function name() view returns (string)",
-//     "function symbol() view returns (string)",
-
-//     "function balanceOf(address) view returns (uint)",
-
-//     "function transfer(address to, uint amount)",
-
-//     "function getToken0Address(address) returns (string)",
-
-//     "event Transfer(address indexed from, address indexed to, uint amount)"
-// ];
-
-const onFetchClick = async (address) => {
-    console.log("clicked");
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const erc20 = new ethers.Contract(address, erc20abi, signer);
-    const result = await erc20.getToken0Address();
-    console.log(result); //TypeError: erc20.getToken0Address is not a function
-
-}
-
 export const QueryStrategyPage = () => {
+    const [token0, setToken0] = useState('');
+    const [token1, setToken1] = useState('');
+
+    const onFetchClick = async (address) => {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const erc20 = new ethers.Contract(address, erc20abi, provider);
+        const token0Res = await erc20.getToken0Address(address);
+        const token1Res = await erc20.getToken0Address(address);
+        setToken0(token0Res);
+        setToken1(token1Res);
+        console.log(token0Res, token1Res);
+    }
+
     return (
         <div id="query_strategy_page" className="mt-20 mb-20 mx-20 w-full h-full bg-rose-200
             flex justify-center items-center flex-col
@@ -43,7 +33,7 @@ export const QueryStrategyPage = () => {
                             <h1>{strategy.token}</h1>
                             <h3 className="font-extralight text-xs">{strategy.address}</h3>
                             <FetchButton address={strategy.address} onFetchClick={onFetchClick} />
-                            <DisplayToken />
+                            <DisplayToken token0Res={token0} token1Res={token1} />
                         </div>
                     )
                 })
