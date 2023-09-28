@@ -5,3 +5,5 @@ export const FetchButton = () => {
         </div>
     )
 }
+
+export default FetchButton;

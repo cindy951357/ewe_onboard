@@ -5,3 +5,5 @@ export const DisplayToken = () => {
         </div>
     )
 }
+
+export default DisplayToken;
