@@ -10,9 +10,10 @@ export const QueryStrategyPage = () => {
     const [token0, setToken0] = useState('');
     const [token1, setToken1] = useState('');
 
+    const queryAddressArbitrumOne = "0x079eB8819b04c48777CCAF22EA85C81C692057b7";
     const onFetchClick = async (address) => {
         const provider = new ethers.BrowserProvider(window.ethereum);
-        const erc20 = new ethers.Contract(address, erc20abi, provider);
+        const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
         const token0Res = await erc20.getToken0Address(address);
         const token1Res = await erc20.getToken0Address(address);
         setToken0(token0Res);
