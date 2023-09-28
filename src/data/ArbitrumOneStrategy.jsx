@@ -1,0 +1,26 @@
+/**
+(WETH-USDC.e) 0xC2fEd5466ADE44451EE20aEF6cd4cd3aB046BD71
+(ARB-USDC.e) 0x085c49DE1d1f94e6846fB8Eb7b65581819A1e08b
+(WETH-ARB) 0xFCb00b689fBb30848a7603312051446a7549a3aB
+(WBTC-WETH) 0x72Cf5C2D4ceC7BAdf1f373D48d36e6518E40F255
+(USDC-USDT) 0x3c432BBDbC780948366082bE593336C3Dd62483D
+ */
+
+export const arbitrumStrategies = [
+    {
+        token: "WETH-USDC.e",
+        address: "0xC2fEd5466ADE44451EE20aEF6cd4cd3aB046BD71"
+    }, {
+        token: "ARB-USDC.e",
+        address: "0x085c49DE1d1f94e6846fB8Eb7b65581819A1e08b"
+    }, {
+        token: "WETH-ARB",
+        address: "0xFCb00b689fBb30848a7603312051446a7549a3aB"
+    }, {
+        token: "WBTC-WETH",
+        address: "0x72Cf5C2D4ceC7BAdf1f373D48d36e6518E40F255"
+    }, {
+        token: "USDC-USDT",
+        address: "0x3c432BBDbC780948366082bE593336C3Dd62483D"
+    }
+]
