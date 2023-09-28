@@ -1,36 +1,31 @@
 import { arbitrumStrategies } from "../data/ArbitrumOneStrategy";
 import DisplayToken from "../components/DisplayToken";
 import FetchButton from "../components/FetchButton";
-import erc20abi from "../data/ERC20api.json";
+import erc20abi from "../data/ERC20abi.json";
 
 const ethers = require("ethers")
 
-// You can also use an ENS name for the contract address
-const daiAddress = "dai.tokens.ethers.eth";
+// const daiAddress = "dai.tokens.ethers.eth";
+// const daiAbi = [
+//     "function name() view returns (string)",
+//     "function symbol() view returns (string)",
 
-// The ERC-20 Contract ABI, which is a common contract interface
-// for tokens (this is the Human-Readable ABI format)
-const daiAbi = [
-    // Some details about the token
-    "function name() view returns (string)",
-    "function symbol() view returns (string)",
+//     "function balanceOf(address) view returns (uint)",
 
-    // Get the account balance
-    "function balanceOf(address) view returns (uint)",
+//     "function transfer(address to, uint amount)",
 
-    // Send some of your tokens to someone else
-    "function transfer(address to, uint amount)",
+//     "function getToken0Address(address) returns (string)",
 
-    // An event triggered whenever anyone transfers to someone else
-    "event Transfer(address indexed from, address indexed to, uint amount)"
-];
+//     "event Transfer(address indexed from, address indexed to, uint amount)"
+// ];
 
 const onFetchClick = async (address) => {
     console.log("clicked");
-    const provider = new ethers.BrowserProvider(window.ethereum)
-    const erc20 = new ethers.Contract(address, erc20abi, provider);
-    const res = await erc20.getValue();
-    console.log(res);
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const erc20 = new ethers.Contract(address, erc20abi, signer);
+    const result = await erc20.getToken0Address();
+    console.log(result); //TypeError: erc20.getToken0Address is not a function
 
 }
 
