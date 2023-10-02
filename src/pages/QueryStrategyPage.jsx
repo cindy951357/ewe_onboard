@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { arbitrumStrategies } from "../data/ArbitrumOneStrategy";
+import DisplayTVL from '../components/DisplayTVL';
 import DisplayToken from "../components/DisplayToken";
 import FetchButton from "../components/FetchButton";
 import erc20abi from "../data/ERC20abi.json";
 
 const ethers = require("ethers")
-
+const queryAddressArbitrumOne = "0x079eB8819b04c48777CCAF22EA85C81C692057b7";
+const initArr = Array.from(Array(arbitrumStrategies.length));
 export const QueryStrategyPage = () => {
-    const [token0Arr, setToken0] = useState(Array.from(Array(arbitrumStrategies.length)));
-    const [token1Arr, setToken1] = useState(Array.from(Array(arbitrumStrategies.length)));
+    // const [erc20, setErc20] = useState(null);
+    const [token0Arr, setToken0] = useState(initArr);
+    const [token1Arr, setToken1] = useState(initArr);
+    const [amount0Arr, setAmount0Arr] = useState(initArr);
+    const [amount1Arr, setAmount1Arr] = useState(initArr);
+    const [usdMarketPrice, setUsdMarketPrice] = useState(0);
 
-    const queryAddressArbitrumOne = "0x079eB8819b04c48777CCAF22EA85C81C692057b7";
-    const onFetchClick = async () => {
+
+    const onFetchTokenAddrClick = async () => {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
+        // setErc20(erc20);
 
         let token0Arr = [];
         let token1Arr = [];
@@ -27,11 +34,40 @@ export const QueryStrategyPage = () => {
         setToken1(token1Arr);
     }
 
+
+    const calcTVL = async () => {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
+        let amt0Arr = [];
+        let amt1Arr = [];
+        for (let i = 0; i < arbitrumStrategies.length; i++) {
+            const token0Amnt = await erc20.getStrategyLiquidityTokenBalance(token0Arr[i]);
+            alert(token0Amnt);
+            amt0Arr.push(token0Amnt);
+        }
+        setAmount0Arr(amt0Arr);
+
+    }
+
+    const fetchUsdMarketPrice = async () => {
+        const fetchRes = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=ETHUSD`).then((res) => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    useEffect(() => {
+        // fetchUsdMarketPrice();
+        onFetchTokenAddrClick();
+        // calcTVL();
+    }, [])
+
     return (
         <div id="query_strategy_page" className="mt-20 mb-20 mx-20 w-full h-full bg-rose-200
             flex justify-center items-center flex-col
         ">
-            <FetchButton onFetchClick={onFetchClick} />
+            {/* <FetchButton onFetchClick={onFetchTokenAddrClick} /> */}
             {
                 arbitrumStrategies.map((strategy, i) => {
                     return (
@@ -42,6 +78,7 @@ export const QueryStrategyPage = () => {
                             <h3 className="font-extralight text-xs">{strategy.address}</h3>
 
                             <DisplayToken token0Res={token0Arr[i]} token1Res={token1Arr[i]} />
+                            <DisplayTVL TVLValue={amount0Arr[2]} />
                         </div>
                     )
                 })
