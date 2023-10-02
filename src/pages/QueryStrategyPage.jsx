@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { arbitrumStrategies } from "../data/ArbitrumOneStrategy";
 import DisplayTVL from '../components/DisplayTVL';
 import DisplayToken from "../components/DisplayToken";
-import FetchButton from "../components/FetchButton";
+// import FetchButton from "../components/FetchButton";
 import erc20abi from "../data/ERC20abi.json";
+import { aggregatorV3InterfaceABI } from '../data/ExchangeAbi';
 
 const ethers = require("ethers")
 const queryAddressArbitrumOne = "0x079eB8819b04c48777CCAF22EA85C81C692057b7";
@@ -38,20 +39,28 @@ export const QueryStrategyPage = () => {
     const calcTVL = async () => {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
+
+
+
         let amt0Arr = [];
         let amt1Arr = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
-            const token0Amnt = await erc20.getStrategyLiquidityTokenBalance(token0Arr[i]);
-            alert(token0Amnt);
-            amt0Arr.push(token0Amnt);
+            const chainLinkContract = new ethers.Contract(arbitrumStrategies[i].address, aggregatorV3InterfaceABI, provider);
+            const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(arbitrumStrategies[i].address);
+            console.log("Result tokenAmnts is:", tokenAmnts);
+            amt0Arr.push(tokenAmnts[0]);
+            amt1Arr.push(tokenAmnts[1]);
+            const exchangeRate = await chainLinkContract.latestRoundData();
+            console.log("exchangeRate", exchangeRate);
         }
         setAmount0Arr(amt0Arr);
-
+        console.log(amt0Arr);
     }
 
     const fetchUsdMarketPrice = async () => {
-        const fetchRes = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=ETHUSD`).then((res) => {
-            console.log(res);
+        const fetchRes = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=USD`).then((res) => {
+            console.log(res); // Not working
+            // setUsdMarketPrice(TODO:);
         }).catch(err => {
             console.log(err);
         });
@@ -60,7 +69,7 @@ export const QueryStrategyPage = () => {
     useEffect(() => {
         // fetchUsdMarketPrice();
         onFetchTokenAddrClick();
-        // calcTVL();
+        calcTVL();
     }, [])
 
     return (
