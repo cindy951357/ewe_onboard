@@ -8,6 +8,7 @@ import { aggregatorV3InterfaceABI } from '../data/ExchangeAbi';
 
 const ethers = require("ethers")
 const queryAddressArbitrumOne = "0x079eB8819b04c48777CCAF22EA85C81C692057b7";
+const chainLinkAddr = "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43"
 const initArr = Array.from(Array(arbitrumStrategies.length));
 export const QueryStrategyPage = () => {
     // const [erc20, setErc20] = useState(null);
@@ -19,7 +20,8 @@ export const QueryStrategyPage = () => {
 
 
     const onFetchTokenAddrClick = async () => {
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        // const provider = new ethers.BrowserProvider(window.ethereum); //v6
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
         // setErc20(erc20);
 
@@ -37,20 +39,22 @@ export const QueryStrategyPage = () => {
 
 
     const calcTVL = async () => {
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        // const provider = new ethers.BrowserProvider(window.ethereum);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
-
-
 
         let amt0Arr = [];
         let amt1Arr = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
-            const chainLinkContract = new ethers.Contract(arbitrumStrategies[i].address, aggregatorV3InterfaceABI, provider);
-            const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(arbitrumStrategies[i].address);
-            console.log("Result tokenAmnts is:", tokenAmnts);
-            amt0Arr.push(tokenAmnts[0]);
-            amt1Arr.push(tokenAmnts[1]);
-            const exchangeRate = await chainLinkContract.latestRoundData();
+            const chainLinkContract = new ethers.Contract(chainLinkAddr, aggregatorV3InterfaceABI, provider);
+            const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(token0Arr[i]);
+            amt0Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[0]._hex));
+            amt1Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[1]._hex));
+            const exchangeRate = await chainLinkContract.latestRoundData().then(res => {
+                console.log("exchangeRate: ", res)
+            }).catch(err => {
+                console.log("exchangeRate: ", err);
+            });
             console.log("exchangeRate", exchangeRate);
         }
         setAmount0Arr(amt0Arr);
@@ -69,7 +73,7 @@ export const QueryStrategyPage = () => {
     useEffect(() => {
         // fetchUsdMarketPrice();
         onFetchTokenAddrClick();
-        calcTVL();
+        // calcTVL();
     }, [])
 
     return (
@@ -87,7 +91,7 @@ export const QueryStrategyPage = () => {
                             <h3 className="font-extralight text-xs">{strategy.address}</h3>
 
                             <DisplayToken token0Res={token0Arr[i]} token1Res={token1Arr[i]} />
-                            <DisplayTVL TVLValue={amount0Arr[2]} />
+                            <DisplayTVL TVLValue={0} />
                         </div>
                     )
                 })
