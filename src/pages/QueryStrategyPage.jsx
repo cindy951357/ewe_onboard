@@ -39,24 +39,42 @@ export const QueryStrategyPage = () => {
 
 
     const calcTVL = async () => {
-        // const provider = new ethers.BrowserProvider(window.ethereum);
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
+        // const provider = new ethers.BrowserProvider(window.ethereum); //v6
+        console.log("inside calcTVL");
 
         let amt0Arr = [];
         let amt1Arr = [];
+
         for (let i = 0; i < arbitrumStrategies.length; i++) {
-            const chainLinkContract = new ethers.Contract(chainLinkAddr, aggregatorV3InterfaceABI, provider);
-            const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(token0Arr[i]);
-            amt0Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[0]._hex));
-            amt1Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[1]._hex));
-            const exchangeRate = await chainLinkContract.latestRoundData().then(res => {
-                console.log("exchangeRate: ", res)
-            }).catch(err => {
-                console.log("exchangeRate: ", err);
-            });
-            console.log("exchangeRate", exchangeRate);
+            if (arbitrumStrategies[i].priceAddress !== "") {
+                try {
+                    const provider2 = new ethers.providers.Web3Provider(window.ethereum);
+                    const chainLinkContract = new ethers.Contract(arbitrumStrategies[i].priceAddress, aggregatorV3InterfaceABI, provider2);
+                    const exchangeRate = await chainLinkContract.latestRoundData();
+                    const exchangeRateAnswer = exchangeRate.answer._hex;
+                    console.log("exchangeRateAnswer", exchangeRateAnswer);
+                } catch (err) {
+                    console.log("calcTVL error", err, "i: ", i);
+                }
+
+            }
+
         }
+
+        for (let i = 0; i < arbitrumStrategies.length; i++) {
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
+                console.log("(token0Arr[i]", i, token0Arr[i]);
+                const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(token0Arr[i]);
+                amt0Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[0]._hex));
+                amt1Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[1]._hex));
+            } catch (err) {
+                console.log("calcTVL error", err, "i: ", i);
+            }
+
+        }
+
         setAmount0Arr(amt0Arr);
         console.log(amt0Arr);
     }
@@ -73,8 +91,11 @@ export const QueryStrategyPage = () => {
     useEffect(() => {
         // fetchUsdMarketPrice();
         onFetchTokenAddrClick();
-        // calcTVL();
     }, [])
+
+    useEffect(() => {
+        calcTVL();
+    }, [token0Arr, token1Arr])
 
     return (
         <div id="query_strategy_page" className="mt-20 mb-20 mx-20 w-full h-full bg-rose-200
