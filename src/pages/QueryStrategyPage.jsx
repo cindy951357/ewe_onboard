@@ -85,9 +85,6 @@ export const QueryStrategyPage = () => {
     }
 
     const calcTVL = async () => {
-        fetchExchangeRate();
-        fetchTokenBalance();
-
         let TVLArr = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             console.log(amount0Arr[i], exchangeRate0Arr[i], amount1Arr[i], exchangeRate1Arr[i])
@@ -104,9 +101,16 @@ export const QueryStrategyPage = () => {
 
     useEffect(() => {
         if (token0Arr[0] !== undefined) {
+            fetchExchangeRate();
+            fetchTokenBalance();
+        }
+    }, [token0Arr, token1Arr]);
+
+    useEffect(() => {
+        if (amount0Arr[0] !== undefined && exchangeRate0Arr[0] !== undefined) {
             calcTVL();
         }
-    }, [token0Arr, token1Arr])
+    }, [amount0Arr, exchangeRate0Arr]);
 
     return (
         <div id="query_strategy_page" className="mt-20 mb-20 mx-20 w-full h-full bg-rose-200
