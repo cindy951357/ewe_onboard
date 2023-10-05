@@ -90,6 +90,7 @@ export const QueryStrategyPage = () => {
 
         let TVLArr = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
+            console.log(amount0Arr[i], exchangeRate0Arr[i], amount1Arr[i], exchangeRate1Arr[i])
             const currTVL = amount0Arr[i] * exchangeRate0Arr[i] + amount1Arr[i] * exchangeRate1Arr[i];
             TVLArr.push(currTVL);
         }
