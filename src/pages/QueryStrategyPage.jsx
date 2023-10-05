@@ -2,28 +2,27 @@ import { useState, useEffect } from 'react';
 import { arbitrumStrategies } from "../data/ArbitrumOneStrategy";
 import DisplayTVL from '../components/DisplayTVL';
 import DisplayToken from "../components/DisplayToken";
-// import FetchButton from "../components/FetchButton";
 import erc20abi from "../data/ERC20abi.json";
 import { aggregatorV3InterfaceABI } from '../data/ExchangeAbi';
+
+// const provider = new ethers.BrowserProvider(window.ethereum); //v6
 
 const ethers = require("ethers")
 const queryAddressArbitrumOne = "0x079eB8819b04c48777CCAF22EA85C81C692057b7";
 const chainLinkAddr = "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43"
 const initArr = Array.from(Array(arbitrumStrategies.length));
 export const QueryStrategyPage = () => {
-    // const [erc20, setErc20] = useState(null);
     const [token0Arr, setToken0] = useState(initArr);
     const [token1Arr, setToken1] = useState(initArr);
     const [amount0Arr, setAmount0Arr] = useState(initArr);
     const [amount1Arr, setAmount1Arr] = useState(initArr);
+    const [exchangeRateArr, setExchangeRateArr] = useState(initArr);
     const [usdMarketPrice, setUsdMarketPrice] = useState(0);
 
 
     const onFetchTokenAddrClick = async () => {
-        // const provider = new ethers.BrowserProvider(window.ethereum); //v6
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
-        // setErc20(erc20);
 
         let token0Arr = [];
         let token1Arr = [];
@@ -38,45 +37,49 @@ export const QueryStrategyPage = () => {
     }
 
 
-    const calcTVL = async () => {
-        // const provider = new ethers.BrowserProvider(window.ethereum); //v6
-        console.log("inside calcTVL");
-
-        let amt0Arr = [];
-        let amt1Arr = [];
-
+    const fetchExchangeRate = async () => {
+        let arrTmp = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             if (arbitrumStrategies[i].priceAddress !== "") {
                 try {
                     const provider2 = new ethers.providers.Web3Provider(window.ethereum);
                     const chainLinkContract = new ethers.Contract(arbitrumStrategies[i].priceAddress, aggregatorV3InterfaceABI, provider2);
                     const exchangeRate = await chainLinkContract.latestRoundData();
-                    const exchangeRateAnswer = exchangeRate.answer._hex;
+                    const exchangeRateAnswer = Math.pow(10, -8) * parseInt(exchangeRate.answer._hex);
+                    arrTmp.push(exchangeRateAnswer);
                     console.log("exchangeRateAnswer", exchangeRateAnswer);
                 } catch (err) {
-                    console.log("calcTVL error", err, "i: ", i);
+                    console.log("fetchExchangeRate error", err, "i: ", i);
                 }
-
+                setExchangeRateArr(arrTmp);
             }
-
         }
+    }
 
+    const fetchTokenBalance = async () => {
+        let amt0Arr = [];
+        let amt1Arr = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             try {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
-                console.log("(token0Arr[i]", i, token0Arr[i]);
-                const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(token0Arr[i]);
+                const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(arbitrumStrategies[i].address);
+                console.log("tokenAmnts", tokenAmnts)
                 amt0Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[0]._hex));
                 amt1Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[1]._hex));
             } catch (err) {
-                console.log("calcTVL error", err, "i: ", i);
+                console.log("fetchTokenBalance error", err, "i: ", i);
             }
 
         }
-
         setAmount0Arr(amt0Arr);
-        console.log(amt0Arr);
+        setAmount1Arr(amt1Arr);
+        console.log("amt0Arr", amt0Arr);
+    }
+
+    const calcTVL = async () => {
+        fetchExchangeRate();
+        fetchTokenBalance();
     }
 
     const fetchUsdMarketPrice = async () => {
@@ -94,7 +97,9 @@ export const QueryStrategyPage = () => {
     }, [])
 
     useEffect(() => {
-        calcTVL();
+        if (token0Arr[0] !== undefined) {
+            calcTVL();
+        }
     }, [token0Arr, token1Arr])
 
     return (
