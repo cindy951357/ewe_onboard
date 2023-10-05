@@ -24,13 +24,13 @@ export const QueryStrategyPage = () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
 
-        let token0Arr = initArr;
-        let token1Arr = initArr;
+        let token0Arr = [...initArr];
+        let token1Arr = [...initArr];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             const token0Res = await erc20.getToken0Address(arbitrumStrategies[i].address);
             const token1Res = await erc20.getToken1Address(arbitrumStrategies[i].address);
-            token0Arr[i] = token0Res;
-            token1Arr[i] = token1Res;
+            token0Arr[i] = token0Res.toString();
+            token1Arr[i] = token1Res.toString();
         }
         setToken0(token0Arr);
         setToken1(token1Arr);
@@ -38,8 +38,8 @@ export const QueryStrategyPage = () => {
 
 
     const fetchExchangeRate = async () => {
-        let arrTmp0 = initArr;
-        let arrTmp1 = initArr;
+        let arrTmp0 = [...initArr];
+        let arrTmp1 = [...initArr];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             if (arbitrumStrategies[i].priceAddress !== "") {
                 try {
