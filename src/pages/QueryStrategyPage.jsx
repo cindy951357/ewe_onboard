@@ -16,9 +16,9 @@ export const QueryStrategyPage = () => {
     const [token1Arr, setToken1] = useState(initArr);
     const [amount0Arr, setAmount0Arr] = useState(initArr);
     const [amount1Arr, setAmount1Arr] = useState(initArr);
-    const [exchangeRateArr, setExchangeRateArr] = useState(initArr);
-    const [usdMarketPrice, setUsdMarketPrice] = useState(0);
-
+    const [exchangeRate0Arr, setExchangeRate0Arr] = useState(initArr);
+    const [exchangeRate1Arr, setExchangeRate1Arr] = useState(initArr);
+    const [TVLArr, setTVLArr] = useState(initArr);
 
     const onFetchTokenAddrClick = async () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -38,20 +38,27 @@ export const QueryStrategyPage = () => {
 
 
     const fetchExchangeRate = async () => {
-        let arrTmp = [];
+        let arrTmp0 = [];
+        let arrTmp1 = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             if (arbitrumStrategies[i].priceAddress !== "") {
                 try {
                     const provider2 = new ethers.providers.Web3Provider(window.ethereum);
-                    const chainLinkContract = new ethers.Contract(arbitrumStrategies[i].priceAddress, aggregatorV3InterfaceABI, provider2);
-                    const exchangeRate = await chainLinkContract.latestRoundData();
-                    const exchangeRateAnswer = Math.pow(10, -8) * parseInt(exchangeRate.answer._hex);
-                    arrTmp.push(exchangeRateAnswer);
-                    console.log("exchangeRateAnswer", exchangeRateAnswer);
+                    console.log("0 and 1", arbitrumStrategies[i].priceAddresses[0], arbitrumStrategies[i].priceAddresses[1])
+                    const chainLinkContract0 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[0], aggregatorV3InterfaceABI, provider2);
+                    const chainLinkContract1 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[1], aggregatorV3InterfaceABI, provider2);
+                    const exchangeRate0 = await chainLinkContract0.latestRoundData();
+                    const exchangeRate1 = await chainLinkContract1.latestRoundData();
+                    const exchangeRateAnswer0 = Math.pow(10, -8) * parseInt(exchangeRate0.answer._hex);
+                    const exchangeRateAnswer1 = Math.pow(10, -8) * parseInt(exchangeRate1.answer._hex);
+                    arrTmp0.push(exchangeRateAnswer0);
+                    arrTmp1.push(exchangeRateAnswer1);
+                    console.log("exchangeRateAnswer0", exchangeRateAnswer0, "exchangeRateAnswer1", exchangeRateAnswer1);
                 } catch (err) {
                     console.log("fetchExchangeRate error", err, "i: ", i);
                 }
-                setExchangeRateArr(arrTmp);
+                setExchangeRate0Arr(arrTmp0);
+                setExchangeRate1Arr(arrTmp1);
             }
         }
     }
@@ -80,15 +87,13 @@ export const QueryStrategyPage = () => {
     const calcTVL = async () => {
         fetchExchangeRate();
         fetchTokenBalance();
-    }
 
-    const fetchUsdMarketPrice = async () => {
-        const fetchRes = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=USD`).then((res) => {
-            console.log(res); // Not working
-            // setUsdMarketPrice(TODO:);
-        }).catch(err => {
-            console.log(err);
-        });
+        let TVLArr = [];
+        for (let i = 0; i < arbitrumStrategies.length; i++) {
+            const currTVL = amount0Arr[i] * exchangeRate0Arr[i] + amount1Arr[i] * exchangeRate1Arr[i];
+            TVLArr.push(currTVL);
+        }
+        setTVLArr(TVLArr);
     }
 
     useEffect(() => {
@@ -117,7 +122,7 @@ export const QueryStrategyPage = () => {
                             <h3 className="font-extralight text-xs">{strategy.address}</h3>
 
                             <DisplayToken token0Res={token0Arr[i]} token1Res={token1Arr[i]} />
-                            <DisplayTVL TVLValue={0} />
+                            <DisplayTVL TVLValue={TVLArr[i]} />
                         </div>
                     )
                 })
