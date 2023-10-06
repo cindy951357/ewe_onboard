@@ -10,7 +10,7 @@ import { aggregatorV3InterfaceABI } from '../data/ExchangeAbi';
 const ethers = require("ethers")
 const queryAddressArbitrumOne = "0x079eB8819b04c48777CCAF22EA85C81C692057b7";
 const chainLinkAddr = "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43"
-const initArr = Array.from(Array(arbitrumStrategies.length), () => 0);
+const initArr = Array.from(Array(arbitrumStrategies.length), () => -1);
 export const QueryStrategyPage = () => {
     const [token0Arr, setToken0] = useState(initArr);
     const [token1Arr, setToken1] = useState(initArr);
@@ -24,8 +24,8 @@ export const QueryStrategyPage = () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
 
-        let token0Arr = initArr;
-        let token1Arr = initArr;
+        let token0Arr = [...initArr];
+        let token1Arr = [...initArr];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             const token0Res = await erc20.getToken0Address(arbitrumStrategies[i].address);
             const token1Res = await erc20.getToken1Address(arbitrumStrategies[i].address);
@@ -47,12 +47,10 @@ export const QueryStrategyPage = () => {
                 const chainLinkContract1 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[1], aggregatorV3InterfaceABI, provider2);
                 const exchangeRate0 = await chainLinkContract0.latestRoundData();
                 const exchangeRate1 = await chainLinkContract1.latestRoundData();
-                console.log(i, "fetched result: ", exchangeRate0, exchangeRate1)
                 const exchangeRateAnswer0 = Math.pow(10, -8) * parseInt(exchangeRate0.answer._hex, 16);
                 const exchangeRateAnswer1 = Math.pow(10, -8) * parseInt(exchangeRate1.answer._hex, 16);
                 arrTmp0[i] = exchangeRateAnswer0;
                 arrTmp1[i] = exchangeRateAnswer1;
-                console.log(i, "exchangeRateAnswer0", exchangeRateAnswer0, "exchangeRateAnswer1", exchangeRateAnswer1);
             } catch (err) {
                 console.log("fetchExchangeRate error", err, "i: ", i);
             }
@@ -96,17 +94,12 @@ export const QueryStrategyPage = () => {
     }, [])
 
     useEffect(() => {
-        if (token0Arr[0] !== undefined) {
+        if (token0Arr[1] !== -1) {
             fetchExchangeRate();
             fetchTokenBalance();
-        }
-    }, [token0Arr, token1Arr]);
-
-    useEffect(() => {
-        if (amount0Arr[amount0Arr.length - 1] !== undefined && exchangeRate0Arr[exchangeRate0Arr.length - 1] !== undefined) {
             calcTVL();
         }
-    }, [amount0Arr, exchangeRate0Arr]);
+    }, [token0Arr, token1Arr]);
 
     return (
         <div id="query_strategy_page" className="mt-20 mb-20 mx-20 w-full h-full bg-rose-200
