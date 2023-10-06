@@ -91,15 +91,15 @@ export const QueryStrategyPage = () => {
 
     useEffect(() => {
         onFetchTokenAddrClick();
-    }, [])
+        fetchExchangeRate();
+        fetchTokenBalance();
+    }, []);
 
     useEffect(() => {
-        if (token0Arr[1] !== -1) {
-            fetchExchangeRate();
-            fetchTokenBalance();
+        if (amount1Arr[amount1Arr.legth - 1] !== -1 && exchangeRate1Arr[exchangeRate1Arr.length - 1] !== -1) {
             calcTVL();
         }
-    }, [token0Arr, token1Arr]);
+    }, [amount1Arr, exchangeRate1Arr]);
 
     return (
         <div id="query_strategy_page" className="mt-20 mb-20 mx-20 w-full h-full bg-rose-200
