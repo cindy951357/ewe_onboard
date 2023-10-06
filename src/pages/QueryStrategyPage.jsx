@@ -41,25 +41,23 @@ export const QueryStrategyPage = () => {
         let arrTmp0 = [...initArr];
         let arrTmp1 = [...initArr];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
-            if (arbitrumStrategies[i].priceAddress !== "") {
-                try {
-                    const provider2 = new ethers.providers.Web3Provider(window.ethereum);
-                    const chainLinkContract0 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[0], aggregatorV3InterfaceABI, provider2);
-                    const chainLinkContract1 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[1], aggregatorV3InterfaceABI, provider2);
-                    const exchangeRate0 = await chainLinkContract0.latestRoundData();
-                    const exchangeRate1 = await chainLinkContract1.latestRoundData();
-                    console.log("fetched result: ", exchangeRate0, exchangeRate1)
-                    const exchangeRateAnswer0 = Math.pow(10, -8) * parseInt(exchangeRate0.answer._hex, 16);
-                    const exchangeRateAnswer1 = Math.pow(10, -8) * parseInt(exchangeRate1.answer._hex, 16);
-                    arrTmp0[i] = exchangeRateAnswer0;
-                    arrTmp1[i] = exchangeRateAnswer1;
-                    console.log(i, "exchangeRateAnswer0", exchangeRateAnswer0, "exchangeRateAnswer1", exchangeRateAnswer1);
-                } catch (err) {
-                    console.log("fetchExchangeRate error", err, "i: ", i);
-                }
-                setExchangeRate0Arr(arrTmp0);
-                setExchangeRate1Arr(arrTmp1);
+            try {
+                const provider2 = new ethers.providers.Web3Provider(window.ethereum);
+                const chainLinkContract0 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[0], aggregatorV3InterfaceABI, provider2);
+                const chainLinkContract1 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[1], aggregatorV3InterfaceABI, provider2);
+                const exchangeRate0 = await chainLinkContract0.latestRoundData();
+                const exchangeRate1 = await chainLinkContract1.latestRoundData();
+                console.log(i, "fetched result: ", exchangeRate0, exchangeRate1)
+                const exchangeRateAnswer0 = Math.pow(10, -8) * parseInt(exchangeRate0.answer._hex, 16);
+                const exchangeRateAnswer1 = Math.pow(10, -8) * parseInt(exchangeRate1.answer._hex, 16);
+                arrTmp0[i] = exchangeRateAnswer0;
+                arrTmp1[i] = exchangeRateAnswer1;
+                console.log(i, "exchangeRateAnswer0", exchangeRateAnswer0, "exchangeRateAnswer1", exchangeRateAnswer1);
+            } catch (err) {
+                console.log("fetchExchangeRate error", err, "i: ", i);
             }
+            setExchangeRate0Arr(arrTmp0);
+            setExchangeRate1Arr(arrTmp1);
         }
     }
 
@@ -83,7 +81,7 @@ export const QueryStrategyPage = () => {
     }
 
     const calcTVL = async () => {
-        console.log("exchangeRate0Arr", exchangeRate0Arr);
+        console.log("exchangeRate0Arr", exchangeRate0Arr, "exchangeRate1Arr", exchangeRate1Arr);
         let TVLArr = [];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             console.log(i, amount0Arr[i], exchangeRate0Arr[i], amount1Arr[i], exchangeRate1Arr[i])
