@@ -24,13 +24,13 @@ export const QueryStrategyPage = () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
 
-        let token0Arr = [...initArr];
-        let token1Arr = [...initArr];
+        let token0Arr = initArr;
+        let token1Arr = initArr;
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             const token0Res = await erc20.getToken0Address(arbitrumStrategies[i].address);
             const token1Res = await erc20.getToken1Address(arbitrumStrategies[i].address);
-            token0Arr[i] = token0Res.toString();
-            token1Arr[i] = token1Res.toString();
+            token0Arr[i] = token0Res;
+            token1Arr[i] = token1Res;
         }
         setToken0(token0Arr);
         setToken1(token1Arr);
@@ -48,8 +48,9 @@ export const QueryStrategyPage = () => {
                     const chainLinkContract1 = new ethers.Contract(arbitrumStrategies[i].priceAddresses[1], aggregatorV3InterfaceABI, provider2);
                     const exchangeRate0 = await chainLinkContract0.latestRoundData();
                     const exchangeRate1 = await chainLinkContract1.latestRoundData();
-                    const exchangeRateAnswer0 = Math.pow(10, -8) * parseInt(exchangeRate0.answer._hex);
-                    const exchangeRateAnswer1 = Math.pow(10, -8) * parseInt(exchangeRate1.answer._hex);
+                    console.log("fetched result: ", exchangeRate0, exchangeRate1)
+                    const exchangeRateAnswer0 = Math.pow(10, -8) * parseInt(exchangeRate0.answer._hex, 16);
+                    const exchangeRateAnswer1 = Math.pow(10, -8) * parseInt(exchangeRate1.answer._hex, 16);
                     arrTmp0[i] = exchangeRateAnswer0;
                     arrTmp1[i] = exchangeRateAnswer1;
                     console.log(i, "exchangeRateAnswer0", exchangeRateAnswer0, "exchangeRateAnswer1", exchangeRateAnswer1);
@@ -63,15 +64,15 @@ export const QueryStrategyPage = () => {
     }
 
     const fetchTokenBalance = async () => {
-        let amt0Arr = [];
-        let amt1Arr = [];
+        let amt0Arr = [...initArr];
+        let amt1Arr = [...initArr];
         for (let i = 0; i < arbitrumStrategies.length; i++) {
             try {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const erc20 = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
                 const tokenAmnts = await erc20.getStrategyLiquidityTokenBalance(arbitrumStrategies[i].address);
-                amt0Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[0]._hex));
-                amt1Arr.push(Math.pow(10, -18) * parseInt(tokenAmnts[1]._hex));
+                amt0Arr[i] = (Math.pow(10, -arbitrumStrategies[i].decimals[0]) * parseInt(tokenAmnts[0]._hex, 16));
+                amt1Arr[i] = (Math.pow(10, -arbitrumStrategies[i].decimals[1]) * parseInt(tokenAmnts[1]._hex, 16));
             } catch (err) {
                 console.log("fetchTokenBalance error", err, "i: ", i);
             }
