@@ -17,8 +17,8 @@ function App() {
       <Router>
         <NavBar></NavBar>
         <Routes>
-          <Route path="/" element={<QueryStrategyPage />} />
-          <Route path="task3" element={<DepositWithdrawPage />} />
+          <Route path="/task1" element={<QueryStrategyPage />} />
+          <Route path="/" element={<DepositWithdrawPage />} />
         </Routes>
       </Router>
     </div>
