@@ -65,9 +65,21 @@ const DepositWithdrawPage = () => {
 
                 //_strategyContract, _isETH, _inputToken, _inputAmount, _swapInAmount, _minimumSwapOutAmount
                 const farmContract = new ethers.Contract(FarmContractAddr, FarmAbi, signer);
-                const result = await farmContract.depositLiquidity(WethArbStrategyAddr, true,
+                console.log(
+                    WethArbStrategyAddr,
+                    true,
                     tokenAddrs[selectedTokenName].address,
-                    depositValue, parseInt(swapInAmount._hex, 16), parseInt(minimumSwapOutAmount._hex, 16)
+                    "depositValue:", depositValue,
+                    "swapInAmount:", parseInt(swapInAmount._hex, 16),
+                    "swapOutAmount:", parseInt(minimumSwapOutAmount._hex, 16)
+                );
+                const result = await farmContract.depositLiquidity(
+                    WethArbStrategyAddr,
+                    true,
+                    tokenAddrs[selectedTokenName].address,
+                    depositValue,
+                    parseInt(swapInAmount._hex, 16),
+                    parseInt(minimumSwapOutAmount._hex, 16)
                 );
                 console.log("farmContract ", result);
                 break;
