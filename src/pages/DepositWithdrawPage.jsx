@@ -118,9 +118,6 @@ const DepositWithdrawPage = () => {
                     depositValue,
                     parseInt(swapInAmountToken._hex, 16),
                     parseInt(minimumSwapOutAmountToken._hex, 16),
-                    {
-                        gasLimit: parseInt(approveResult.gasLimit._hex, 16)
-                    }
                 );
                 console.log("farmContract ", resultForToken);
                 break;
