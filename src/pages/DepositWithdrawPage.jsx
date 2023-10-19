@@ -79,7 +79,10 @@ const DepositWithdrawPage = () => {
                     tokenAddrs[selectedTokenName].address,
                     depositValue,
                     parseInt(swapInAmount._hex, 16),
-                    parseInt(minimumSwapOutAmount._hex, 16)
+                    parseInt(minimumSwapOutAmount._hex, 16),
+                    {
+                        value: depositValue
+                    }
                 );
                 console.log("farmContract ", result);
                 break;
@@ -89,7 +92,9 @@ const DepositWithdrawPage = () => {
             default:
                 return;
         }
-
+        fetchExchangeRate();
+        fetchTokenBalance();
+        calcTVL();
     }
 
     const fetchExchangeRate = async () => {
