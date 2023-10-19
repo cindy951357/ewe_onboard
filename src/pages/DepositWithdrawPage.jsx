@@ -4,6 +4,7 @@ import { minimumSwapOutAbi } from '../data/MinimumSwapOutAmountAbi';
 import { FarmAbi } from '../data/FarmAbi';
 import erc20abi from "../data/ERC20abi.json";
 import { aggregatorV3InterfaceABI } from '../data/ExchangeAbi';
+import { ERC20StandardAbi } from '../data/ERC20StandardAbi';
 
 const ethers = require("ethers");
 const tokenNamesArr = ['ETH', 'WETH', 'ARB'];
@@ -88,6 +89,40 @@ const DepositWithdrawPage = () => {
                 break;
             case "ARB":
             case "WETH":
+                console.log("Non-native token handling");
+                const providerToken = new ethers.providers.Web3Provider(window.ethereum);
+                await providerToken.send('eth_requestAccounts', []);
+                const signerToken = await providerToken.getSigner();
+                const swapContractToken = new ethers.Contract(MinimumSwapOutAmountCalculatorAddr, minimumSwapOutAbi, providerToken);
+                const { minimumSwapOutAmount: minimumSwapOutAmountToken, swapInAmount: swapInAmountToken } =
+                    await swapContractToken.getDepositMinimumSwapOutAmount(
+                        WethArbStrategyAddr, tokenAddrs[selectedTokenName].address,
+                        depositValue);
+                console.log("getDepositMinimumSwapOutAmount: ", minimumSwapOutAmountToken, swapInAmountToken);
+
+                // Additional part for non-native token is approve function calling
+                const tokenContract = new ethers.Contract(
+                    tokenAddrs[selectedTokenName].address,
+                    ERC20StandardAbi,
+                    signerToken
+                );
+                const approveResult = await tokenContract.approve(WethArbStrategyAddr, depositValue);
+                console.log("approveResult", approveResult);
+
+                //_strategyContract, _isETH, _inputToken, _inputAmount, _swapInAmount, _minimumSwapOutAmount
+                const farmContractToken = new ethers.Contract(FarmContractAddr, FarmAbi, signerToken);
+                const resultToken = await farmContractToken.depositLiquidity(
+                    WethArbStrategyAddr,
+                    true,
+                    tokenAddrs[selectedTokenName].address,
+                    depositValue,
+                    parseInt(swapInAmountToken._hex, 16),
+                    parseInt(minimumSwapOutAmountToken._hex, 16),
+                    {
+                        value: depositValue
+                    }
+                );
+                console.log("farmContract ", resultToken);
                 break;
             default:
                 return;
