@@ -43,6 +43,7 @@ const DepositWithdrawPage = () => {
     const [exchangeRate0, setExchangeRate0] = useState(-1);
     const [exchangeRate1, setExchangeRate1] = useState(-1);
     const [TVL, setTVL] = useState(-1);
+    const [resultMessage, setResultMessage] = useState("");
 
     const onInputValueChange = e => {
         setDepositValue(parseFloat(e.target.value));
@@ -86,6 +87,7 @@ const DepositWithdrawPage = () => {
                     }
                 );
                 console.log("farmContract ", result);
+                setResultMessage(`result: ${result.hash}`)
                 break;
             case "ARB":
             case "WETH":
@@ -120,6 +122,7 @@ const DepositWithdrawPage = () => {
                     parseInt(minimumSwapOutAmountToken._hex, 16),
                 );
                 console.log("Deposit; farmContract ", resultForToken);
+                setResultMessage(`result: ${resultForToken.hash}`)
                 break;
             default:
                 return;
@@ -148,6 +151,7 @@ const DepositWithdrawPage = () => {
             depositValue,
         );
         console.log("Withdraw; farmContract ", resultForToken);
+        setResultMessage(`result: ${resultForToken.hash}`)
     }
 
     const fetchExchangeRate = async () => {
@@ -240,6 +244,11 @@ const DepositWithdrawPage = () => {
                     Withdraw
                 </button>
 
+                <div id="rersult_message" className="w-full h-[100px] bg-white 
+                    flex rounded-xl mt-2 p-2"
+                >
+                    <p className="break-all">{resultMessage}</p>
+                </div>
             </div>
         </div>
     )
