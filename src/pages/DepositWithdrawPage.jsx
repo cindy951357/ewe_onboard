@@ -227,9 +227,14 @@ const DepositWithdrawPage = () => {
                     from-purple-300 to-purple-500 p-2 mb-2 flex flex-col
                 "
             >
-                <h1>TVL: {TVL}</h1>
                 <h1 className="p-2 flex">Selected: {selectedTokenName}</h1>
-                <h2>Deposit value:</h2>
+                <h1 className="p-2 flex">TVL in USD: {TVL}</h1>
+                <div className="p-2 flex flex-col">
+                    Amount0 and amount1:
+                    <p className="break-all">{amount0}</p>
+                    <p className="break-all">{amount1}</p>
+                </div>
+                <h2 className="p-2 flex">Deposit/Withdraw value:</h2>
                 <input type="number" className="p-2 rounded-l flex mt-2" onChange={onInputValueChange}></input>
                 <button className="p-2 flex h-[40px] w-[100px] rounded-xl bg-rose-200 
                     justify-center items-center self-center mt-2 pointer"
