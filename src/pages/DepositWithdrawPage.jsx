@@ -40,6 +40,8 @@ const DepositWithdrawPage = () => {
     const [selectedTokenName, setSelectedTokenName] = useState(tokenNamesArr[0]);
     const [amount0, setAmount0] = useState(-1);
     const [amount1, setAmount1] = useState(-1);
+    const [amount0USD, setAmount0USD] = useState(-1);
+    const [amount1USD, setAmount1USD] = useState(-1);
     const [exchangeRate0, setExchangeRate0] = useState(-1);
     const [exchangeRate1, setExchangeRate1] = useState(-1);
     const [TVL, setTVL] = useState(-1);
@@ -195,6 +197,8 @@ const DepositWithdrawPage = () => {
     const calcTVL = async () => {
         let tmpTVL = -1;
         tmpTVL = amount0 * exchangeRate0 + amount1 * exchangeRate1;
+        setAmount0USD(amount0 * exchangeRate0);
+        setAmount1USD(amount1 * exchangeRate1);
         setTVL(tmpTVL);
         console.log("tmpTVL", tmpTVL);
     }
@@ -223,7 +227,7 @@ const DepositWithdrawPage = () => {
                 }
             </select>
             <div
-                className="w-[400px] h-[400px] rounded-xl bg-gradient-to-b
+                className="w-[400px] h-[500px] rounded-xl bg-gradient-to-b
                     from-purple-300 to-purple-500 p-2 mb-2 flex flex-col
                 "
             >
@@ -233,6 +237,11 @@ const DepositWithdrawPage = () => {
                     Amount0 and amount1:
                     <p className="break-all">{amount0}</p>
                     <p className="break-all">{amount1}</p>
+                </div>
+                <div className="p-2 flex flex-col">
+                    Amount0 and amount1 in USD:
+                    <p className="break-all">$ {amount0USD}</p>
+                    <p className="break-all">$ {amount1USD}</p>
                 </div>
                 <h2 className="p-2 flex">Deposit/Withdraw value:</h2>
                 <input type="number" className="p-2 rounded-l flex mt-2" onChange={onInputValueChange}></input>

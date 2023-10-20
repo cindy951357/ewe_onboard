@@ -12,7 +12,7 @@ import NavBar from './components/NavBar';
 
 function App() {
   return (
-    <div id="app" className="App bg-orange-100 h-full flex flex-col
+    <div id="app" className="App bg-orange-100 h-screen flex flex-col
       justify-center items-center font-sans">
       <Router>
         <NavBar></NavBar>
