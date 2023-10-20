@@ -89,7 +89,7 @@ const DepositWithdrawPage = () => {
                 break;
             case "ARB":
             case "WETH":
-                console.log("Non-native token handling");
+                console.log("Deposit; Non-native token handling");
                 const providerToken = new ethers.providers.Web3Provider(window.ethereum);
                 await providerToken.send('eth_requestAccounts', []);
                 const signerToken = await providerToken.getSigner();
@@ -98,7 +98,7 @@ const DepositWithdrawPage = () => {
                     await swapContractToken.getDepositMinimumSwapOutAmount(
                         WethArbStrategyAddr, tokenAddrs[selectedTokenName].address,
                         depositValue);
-                console.log("getDepositMinimumSwapOutAmount: ", minimumSwapOutAmountToken, swapInAmountToken);
+                console.log("Deposit; getDepositMinimumSwapOutAmount: ", minimumSwapOutAmountToken, swapInAmountToken);
 
                 // Additional part for non-native token is approve function calling
                 const tokenContract = new ethers.Contract(
@@ -107,7 +107,7 @@ const DepositWithdrawPage = () => {
                     signerToken
                 );
                 const approveResult = await tokenContract.approve(WethArbStrategyAddr, depositValue);
-                console.log("approveResult", approveResult);
+                console.log("Deposit; approveResult", approveResult);
 
                 //_strategyContract, _isETH, _inputToken, _inputAmount, _swapInAmount, _minimumSwapOutAmount
                 const farmContractToken = new ethers.Contract(FarmContractAddr, FarmAbi, signerToken);
@@ -119,7 +119,7 @@ const DepositWithdrawPage = () => {
                     parseInt(swapInAmountToken._hex, 16),
                     parseInt(minimumSwapOutAmountToken._hex, 16),
                 );
-                console.log("farmContract ", resultForToken);
+                console.log("Deposit; farmContract ", resultForToken);
                 break;
             default:
                 return;
@@ -129,8 +129,25 @@ const DepositWithdrawPage = () => {
         calcTVL();
     }
 
-    const onWithdrawBtnClick = () => {
-
+    const onWithdrawBtnClick = async () => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send('eth_requestAccounts', []);
+        const signer = await provider.getSigner();
+        const strategyInfoQuerierContract = new ethers.Contract(queryAddressArbitrumOne, erc20abi, provider);
+        const trackerTokenAddress = await strategyInfoQuerierContract.getTrackerTokenAddress(WethArbStrategyAddr);
+        const trackerTokenContract = new ethers.Contract(
+            trackerTokenAddress,
+            ERC20StandardAbi,
+            signer
+        );
+        const approveResult = await trackerTokenContract.approve(WethArbStrategyAddr, depositValue);
+        console.log("Withdraw; approveResult", approveResult);
+        const farmContractToken = new ethers.Contract(FarmContractAddr, FarmAbi, signer);
+        const resultForToken = await farmContractToken.withdrawLiquidity(
+            WethArbStrategyAddr,
+            depositValue,
+        );
+        console.log("Withdraw; farmContract ", resultForToken);
     }
 
     const fetchExchangeRate = async () => {
