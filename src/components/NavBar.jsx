@@ -7,12 +7,12 @@ const NavBar = () => {
             className="z-10 w-[200px] h-fit flex flex-row"
         >
             <div className="flex p-3">
-                <Link to="/">
+                <Link to="/task1">
                     Task 1 and 2
                 </Link>
             </div>
             <div className="flex p-3">
-                <Link to="task3">
+                <Link to="/">
                     Task 3
                 </Link>
             </div>

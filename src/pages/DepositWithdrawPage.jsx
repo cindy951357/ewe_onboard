@@ -129,6 +129,10 @@ const DepositWithdrawPage = () => {
         calcTVL();
     }
 
+    const onWithdrawBtnClick = () => {
+
+    }
+
     const fetchExchangeRate = async () => {
         let rate0 = -1;
         let rate1 = -1;
@@ -212,6 +216,13 @@ const DepositWithdrawPage = () => {
                 >
                     Deposit
                 </button>
+                <button className="p-2 flex h-[40px] w-[100px] rounded-xl bg-rose-200 
+                    justify-center items-center self-center mt-2 pointer"
+                    onClick={onWithdrawBtnClick}
+                >
+                    Withdraw
+                </button>
+
             </div>
         </div>
     )
