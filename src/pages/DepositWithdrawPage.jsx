@@ -205,7 +205,7 @@ const DepositWithdrawPage = () => {
 
 
     useEffect(() => {
-        if (exchangeRate1 !== -1 && amount1 - 1 !== -1) {
+        if (exchangeRate1 !== -1 && amount1 !== -1) {
             calcTVL();
         }
     }, [exchangeRate1, amount1]);
